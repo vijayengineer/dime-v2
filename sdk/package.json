@@ -1,0 +1,14 @@
+{
+  "name": "@rndm/dime-sdk",
+  "version": "0.1.0",
+  "description": "Trade the DIME 1000× BTC house from code: bots, AI agents, terminals.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "files": ["dist", "README.md"],
+  "scripts": { "build": "tsc -p tsconfig.build.json", "typecheck": "tsc --noEmit" },
+  "peerDependencies": { "viem": "^2.50.0" },
+  "license": "Apache-2.0",
+  "engines": { "node": ">=22" }
+}
