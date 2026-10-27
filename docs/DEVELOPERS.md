@@ -146,6 +146,7 @@ Base URL `https://api-dime.rndm.io`. JSON; big numbers are decimal strings. Auth
 | GET | `/v1/intents/:id` | – | status and timeline |
 | POST | `/v1/intents/:id/cancel` | key | wallet `personal_sign` of `DIME cancel request <id>` |
 | POST | `/v1/close` | key | `{message: CloseRequest, signature}` |
+| POST | `/v1/withdrawals` | key | `{message: WithdrawRequest, signature}`: gasless, paid to the account's own wallet only (SDK `dime.withdraw`) |
 | POST | `/v1/stops` | key | **not enabled** (`AUTO_CLOSE_ENABLED=0`; returns 404) · auto-close: `{message: CloseRequest (expiry ≤ 30 days), signature, triggerPrice}` (8 decimals) |
 | GET | `/v1/stops/:address` | – | auto-closes and their status (`ACTIVE`, `FIRING`, `DONE`, `CANCELLED`, `FAILED`) |
 | POST | `/v1/stops/:id/cancel` | key | `personal_sign` of `DIME cancel auto-close <id>` by the wallet or its session key |

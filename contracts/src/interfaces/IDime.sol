@@ -39,6 +39,14 @@ interface IDimeTypes {
         uint256 nonce;
     }
 
+    /// EIP-712: WithdrawRequest(address user,uint256 amount,uint64 expiry,uint256 nonce). Pays `user` only.
+    struct WithdrawRequest {
+        address user;
+        uint256 amount;
+        uint64 expiry;
+        uint256 nonce;
+    }
+
     /// Opaque payload checked by the configured IPriceVerifier.
     struct PriceProof {
         bytes payload;
@@ -130,6 +138,7 @@ interface IDimeVault is IDimeTypes {
     function deposit(uint256 amount) external;
     function depositFor(address user, uint256 amount) external;
     function withdraw(uint256 amount) external;
+    function withdrawBySig(WithdrawRequest calldata req, bytes calldata sig) external;
     function freeBalance(address user) external view returns (uint256);
     function lockedCollateral(address user) external view returns (uint256);
     function depositedTotal(address user) external view returns (uint256);

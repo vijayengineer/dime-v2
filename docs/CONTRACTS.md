@@ -63,7 +63,13 @@ OrderIntent(address user,bytes32 market,uint8 side,uint128 collateral,uint16 lev
             uint8 routeMask,uint64 matchDeadline,uint128 priceLimit,uint32 configVersion,
             uint64 expiry,uint256 nonce)
 CloseRequest(address user,bytes32 positionId,uint64 expiry,uint256 nonce)
+WithdrawRequest(address user,uint256 amount,uint64 expiry,uint256 nonce)
 ```
+
+`WithdrawRequest` (`withdrawBySig`) is a gasless withdrawal: anyone may submit it, it may be signed by the wallet or a
+live session key, and the contract pays `user` only, so a session key can move funds out of DIME but never away from
+their owner. It works in every protocol state, like `withdraw`. Its use: converting wins (for example into Robinhood
+Stock Tokens) without a wallet prompt. Withdrawals don't reduce the lifetime deposit cap (`depositedTotal`).
 
 This binds chain, contract, user, market, side, size, leverage, permitted routes,
 fee/config version, expiry and nonce. Nonces are **unordered 256-bit random values**,

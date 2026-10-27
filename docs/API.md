@@ -53,6 +53,11 @@ Allowed while `SIGNING`/`MATCHING`. If the intent is already `SUBMITTED`, it ret
 ### `POST /v1/close`
 Body: `{ message: CloseRequest, signature }` with an idempotency key. Response: `{ txHash }`.
 
+### `POST /v1/withdrawals`
+Body: `{ message: WithdrawRequest {user, amount, expiry, nonce}, signature }` (wallet or session key) with an
+idempotency key. The relayer submits `withdrawBySig` on the close lane; funds go to `user` only. No terms or invite
+check. Response: `{ txHash, status }`.
+
 ### `GET /v1/markets`
 `{ markets: [{ symbol, hash, base, name, priceSource, enabled }] }`.
 

@@ -37,6 +37,8 @@ This repository holds the contracts, the TypeScript SDK and the protocol docs. T
 - **House capacity.** Each house position reserves `margin × houseReservationMultiple` of the reserve, within a
   utilisation ceiling and a per-market net-directional limit. When the house is full, orders wait in a queue rather
   than failing.
+- **Gasless withdrawals.** `withdrawBySig` lets the wallet or a session key sign a withdrawal that anyone can submit.
+  It pays the account's own wallet only. The app uses it to turn wins into Robinhood Stock Tokens without a prompt.
 - **Limits on the operator.** DIME issuance can only be lowered after deployment. The stakers' share has a 5% floor.
   The reserve floor can't be raised. Excess-reserve withdrawals can't touch what stakers have accrued.
 - **Price trust.** The price verifier is operator-signed, not an independent oracle: a signature proves who signed

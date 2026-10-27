@@ -43,6 +43,11 @@ export const ORDER_TYPES = {
     { name: "expiry", type: "uint64" }, { name: "nonce", type: "uint256" },
   ],
 } as const;
+export const WITHDRAW_TYPES = {
+  WithdrawRequest: [
+    { name: "user", type: "address" }, { name: "amount", type: "uint256" }, { name: "expiry", type: "uint64" }, { name: "nonce", type: "uint256" },
+  ],
+} as const;
 export const CLOSE_TYPES = {
   CloseRequest: [{ name: "user", type: "address" }, { name: "positionId", type: "bytes32" }, { name: "expiry", type: "uint64" }, { name: "nonce", type: "uint256" }],
 } as const;
@@ -240,6 +245,17 @@ export class DimeClient {
     const message = { user: o.account, positionId: o.positionId, expiry: nowS() + 30n, nonce: randomNonce() };
     const signature = await o.signer.signTypedData({ domain: await this.domain(), types: CLOSE_TYPES, primaryType: "CloseRequest", message });
     return this.request<{ txHash: Hex; status: string; block?: number }>("/v1/close", { body: { message, signature }, headers: { "idempotency-key": `close:${message.nonce}` } });
+  }
+
+  /**
+   * Gasless withdrawal of free balance to the account's own wallet (the contract pays nowhere else). `signer` may be the
+   * wallet or one of its session keys. `amount` in dollars or base units.
+   */
+  async withdraw(o: { account: Address; signer: Signer; amount: number | bigint; ttlSeconds?: number }) {
+    const amount = typeof o.amount === "bigint" ? o.amount : usd(o.amount);
+    const message = { user: o.account, amount, expiry: nowS() + BigInt(o.ttlSeconds ?? 60), nonce: randomNonce() };
+    const signature = await o.signer.signTypedData({ domain: await this.domain(), types: WITHDRAW_TYPES, primaryType: "WithdrawRequest", message });
+    return this.request<{ txHash: Hex; status: string; block?: number }>("/v1/withdrawals", { body: { message, signature }, headers: { "idempotency-key": `withdraw:${message.nonce}` } });
   }
 
   /**

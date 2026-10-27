@@ -42,6 +42,8 @@ contract DimeProtocol is
     );
     bytes32 public constant CLOSE_TYPEHASH =
         keccak256("CloseRequest(address user,bytes32 positionId,uint64 expiry,uint256 nonce)");
+    bytes32 public constant WITHDRAW_TYPEHASH =
+        keccak256("WithdrawRequest(address user,uint256 amount,uint64 expiry,uint256 nonce)");
     bytes32 public constant SESSION_TYPEHASH =
         keccak256("SessionKey(address user,address key,uint64 expiry,uint256 nonce)");
     /// Longest a session key may live; the user renews it after that.
@@ -236,6 +238,23 @@ contract DimeProtocol is
         totalFree -= amount;
         _token.safeTransfer(msg.sender, amount);
         emit Withdrawn(msg.sender, amount);
+    }
+
+    /// @notice Gasless withdrawal: anyone (the relayer, a terminal) submits the user's signed WithdrawRequest, signed by
+    ///         the wallet or one of its live session keys. Funds only ever go to `req.user`, so a session key can move
+    ///         money out of DIME but never away from its owner. Used to convert wins (e.g. into stock tokens) without a
+    ///         wallet prompt or gas. Allowed in every protocol state, like `withdraw`.
+    function withdrawBySig(WithdrawRequest calldata req, bytes calldata sig) external nonReentrant {
+        if (block.timestamp > req.expiry) revert Expired();
+        if (_nonceUsed[req.user][req.nonce]) revert NonceUsed();
+        bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(WITHDRAW_TYPEHASH, req)));
+        if (!_authorised(req.user, digest, sig)) revert BadSignature();
+        _nonceUsed[req.user][req.nonce] = true;
+        if (req.amount == 0 || _free[req.user] < req.amount) revert InsufficientFree();
+        _free[req.user] -= req.amount;
+        totalFree -= req.amount;
+        _token.safeTransfer(req.user, req.amount);
+        emit Withdrawn(req.user, req.amount);
     }
 
     function freeBalance(address user) external view returns (uint256) { return _free[user]; }
